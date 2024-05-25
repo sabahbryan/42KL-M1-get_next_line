@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: bryaloo <bryaloo@student.42kl.edu.my>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/09 16:41:04 by bryaloo           #+#    #+#             */
-/*   Updated: 2024/04/24 18:54:32 by bryaloo          ###   ########.fr       */
+/*   Created: 2024/05/25 17:41:18 by bryaloo           #+#    #+#             */
+/*   Updated: 2024/05/25 17:41:35 by bryaloo          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ static int	read_and_concat(int fd, char **remain, char *buffer)
 	return (bytes_read);
 }
 
+/*
 static char	*extract_line(char **remain)
 {
 	char	*line;
@@ -60,8 +61,8 @@ static char	*extract_line(char **remain)
 	*remain = NULL;
 	return (line);
 }
+*/
 
-/*
 static char	*extract_line(char **remain)
 {
 	char	*line;
@@ -84,12 +85,11 @@ static char	*extract_line(char **remain)
 		}
 		return (line);
 	}
-	line = ft_strdup(*remain);
-	free(*remain);
+	line = ft_strdup(*remain); //strcat?
+	free(*remain); //don't free?
 	*remain = NULL;
 	return (line);
 }
-*/
 
 char	*get_next_line(int fd)
 {
@@ -106,7 +106,7 @@ char	*get_next_line(int fd)
 	while (bytes_read > 0)
 	{
 		line = extract_line(&remain);
-		if (line)
+		if (line) //change?
 			break ;
 		bytes_read = read_and_concat(fd, &remain, buffer);
 	}
@@ -119,7 +119,7 @@ char	*get_next_line(int fd)
 	free(buffer);
 	return (line);
 }
-
+/*
 #include <stdlib.h>
 
 int	main(int argc, char** argv)
@@ -140,6 +140,40 @@ int	main(int argc, char** argv)
 		printf("Call number %d = %s", i++, line);
 		free (line);
 	}
+	return (0);
+}
+*/
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int	main(int argc, char** argv)
+{
+	int		fd;
+	char	*line;
+	int		i;
+
+	i = 0;
+	if (argc != 2)
+	{
+		printf("Usage: %s <filename>\n", argv[0]);
+		return (1);
+	}
+	fd = open(argv[argc - 1], O_RDONLY);
+	if (fd < 0)
+	{
+		perror("Error opening file");
+		return (1);
+	}
+	while (1)
+	{
+		line = get_next_line(fd);
+		if (line == NULL)
+			break ;
+		printf("Call number %d = %s", i++, line);
+		free (line);
+	}
+	close(fd);
 	return (0);
 }
 //COMPILE: gcc get_next_line.c get_next_line_utils.c
