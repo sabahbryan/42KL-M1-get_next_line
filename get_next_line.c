@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
 
 static int	read_and_concat(int fd, char **remain, char *buffer)
 {
@@ -85,16 +84,18 @@ static char	*extract_line(char **remain)
 		}
 		return (line);
 	}
-	line = ft_strdup(*remain); //strcat?
+	else
+		return (NULL);
+}
+/*	line = ft_strdup(*remain); //strcat?
 	free(*remain); //don't free?
 	*remain = NULL;
-	return (line);
-}
+	return (line); */
 
 char	*get_next_line(int fd)
 {
 	char		*buffer;
-	static char	*remain;
+	static char	*remain = NULL;
 	char		*line;
 	int			bytes_read;
 
@@ -106,12 +107,14 @@ char	*get_next_line(int fd)
 	while (bytes_read > 0)
 	{
 		line = extract_line(&remain);
-		if (line) //change?
+		if (line)
 			break ;
 		bytes_read = read_and_concat(fd, &remain, buffer);
 	}
 	if (bytes_read == 0 && remain && *remain)
 	{
+		if (line)
+			free(line);
 		line = ft_strdup(remain);
 		free(remain);
 		remain = NULL;
@@ -143,10 +146,7 @@ int	main(int argc, char** argv)
 	return (0);
 }
 */
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-
+/*
 int	main(int argc, char** argv)
 {
 	int		fd;
@@ -165,18 +165,19 @@ int	main(int argc, char** argv)
 		perror("Error opening file");
 		return (1);
 	}
-	while (1)
+	line = get_next_line(fd);
+	while (line)
 	{
-		line = get_next_line(fd);
-		if (line == NULL)
-			break ;
 		printf("Call number %d = %s", i++, line);
 		free (line);
+		line = get_next_line(fd);
 	}
 	close(fd);
+	system("leaks a.out");
 	return (0);
 }
 //COMPILE: gcc get_next_line.c get_next_line_utils.c
 //RUN: ./a.out test2.txt
 //B2BR https://github.com/hanshazairi/42-born2beroot
 // https://github.com/pasqualerossi/Born2BeRoot-Guide
+*/
