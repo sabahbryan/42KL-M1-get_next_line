@@ -72,11 +72,11 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		return (NULL);
 	ptr = str;
 	while (*s1)
-		*str++ = *s1++;
+		*ptr++ = *s1++;
 	while (*s2)
-		*str++ = *s2++;
-	*str = '\0';
-	return (ptr);
+		*ptr++ = *s2++;
+	*ptr = '\0';
+	return (str);
 }
 
 // For alternative extract_line

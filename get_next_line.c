@@ -28,39 +28,9 @@ static int	read_and_concat(int fd, char **remain, char *buffer)
 	if (!temp)
 		return (-1);
 	*remain = temp;
+	//free(temp);
 	return (bytes_read);
 }
-
-/*
-static char	*extract_line(char **remain)
-{
-	char	*line;
-	char	*newline_pos;
-	char	*temp;
-
-	if (*remain == NULL)
-		return (NULL);
-	newline_pos = ft_strchr(*remain, '\n');
-	if (newline_pos)
-	{
-		*newline_pos = '\0';
-		line = ft_strjoin(*remain, "\n");
-		temp = ft_strdup(newline_pos + 1);
-		free(*remain);
-		*remain = temp;
-		if (!(*remain))
-		{
-			free(line);
-			return (NULL);
-		}
-		return (line);
-	}
-	line = ft_strdup(*remain);
-	free(*remain);
-	*remain = NULL;
-	return (line);
-}
-*/
 
 static char	*extract_line(char **remain)
 {
@@ -77,6 +47,7 @@ static char	*extract_line(char **remain)
 		temp = ft_strdup(newline_pos + 1);
 		free(*remain);
 		*remain = temp;
+		free(temp);
 		if (!(*remain))
 		{
 			free(line);
@@ -87,10 +58,7 @@ static char	*extract_line(char **remain)
 	else
 		return (NULL);
 }
-/*	line = ft_strdup(*remain); //strcat?
-	free(*remain); //don't free?
-	*remain = NULL;
-	return (line); */
+//	free(temp); after *remain = temp; [eason]
 
 char	*get_next_line(int fd)
 {
@@ -122,30 +90,8 @@ char	*get_next_line(int fd)
 	free(buffer);
 	return (line);
 }
-/*
-#include <stdlib.h>
+// free(line); after line = ft_strdup(remain); [eason]
 
-int	main(int argc, char** argv)
-{
-	int		fd;
-	char	*line;
-	int		i;
-
-	i = 0;
-	if (argc != 2)
-		return (1);
-	fd = open(argv[argc - 1], O_RDONLY);
-	while (1)
-	{
-		line = get_next_line(fd);
-		if (line == NULL)
-			break ;
-		printf("Call number %d = %s", i++, line);
-		free (line);
-	}
-	return (0);
-}
-*/
 /*
 int	main(int argc, char** argv)
 {
@@ -176,8 +122,8 @@ int	main(int argc, char** argv)
 	system("leaks a.out");
 	return (0);
 }
+*/
 //COMPILE: gcc get_next_line.c get_next_line_utils.c
 //RUN: ./a.out test2.txt
 //B2BR https://github.com/hanshazairi/42-born2beroot
 // https://github.com/pasqualerossi/Born2BeRoot-Guide
-*/
