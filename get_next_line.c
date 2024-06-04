@@ -28,7 +28,6 @@ static int	read_and_concat(int fd, char **remain, char *buffer)
 	if (!temp)
 		return (-1);
 	*remain = temp;
-	//free(temp);
 	return (bytes_read);
 }
 
@@ -47,7 +46,6 @@ static char	*extract_line(char **remain)
 		temp = ft_strdup(newline_pos + 1);
 		free(*remain);
 		*remain = temp;
-		free(temp);
 		if (!(*remain))
 		{
 			free(line);
@@ -58,7 +56,6 @@ static char	*extract_line(char **remain)
 	else
 		return (NULL);
 }
-//	free(temp); after *remain = temp; [eason]
 
 char	*get_next_line(int fd)
 {
@@ -78,7 +75,7 @@ char	*get_next_line(int fd)
 		if (line)
 			break ;
 		bytes_read = read_and_concat(fd, &remain, buffer);
-	}
+	} //don't call read_and_concat too often?
 	if (bytes_read == 0 && remain && *remain)
 	{
 		if (line)
@@ -87,43 +84,42 @@ char	*get_next_line(int fd)
 		free(remain);
 		remain = NULL;
 	}
+	else if (bytes_read == 0 && remain && (*remain == 0))
+		free (remain); //counter old system[leon WORKS!]
 	free(buffer);
 	return (line);
 }
-// free(line); after line = ft_strdup(remain); [eason]
 
-/*
-int	main(int argc, char** argv)
-{
-	int		fd;
-	char	*line;
-	int		i;
+// int	main(int argc, char** argv)
+// {
+// 	int		fd;
+// 	char	*line;
+// 	int		i;
 
-	i = 0;
-	if (argc != 2)
-	{
-		printf("Usage: %s <filename>\n", argv[0]);
-		return (1);
-	}
-	fd = open(argv[argc - 1], O_RDONLY);
-	if (fd < 0)
-	{
-		perror("Error opening file");
-		return (1);
-	}
-	line = get_next_line(fd);
-	while (line)
-	{
-		printf("Call number %d = %s", i++, line);
-		free (line);
-		line = get_next_line(fd);
-	}
-	close(fd);
-	system("leaks a.out");
-	return (0);
-}
-*/
+// 	i = 0;
+// 	if (argc != 2)
+// 	{
+// 		printf("Usage: %s <filename>\n", argv[0]);
+// 		return (1);
+// 	}
+// 	fd = open(argv[argc - 1], O_RDONLY);
+// 	if (fd < 0)
+// 	{
+// 		perror("Error opening file");
+// 		return (1);
+// 	}
+// 	line = get_next_line(fd);
+// 	while (line)
+// 	{
+// 		printf("Call number %d = %s", i++, line);
+// 		free (line);
+// 		line = get_next_line(fd);
+// 	}
+// 	close(fd);
+// 	system("leaks a.out");
+// 	return (0);
+// }
+
 //COMPILE: gcc get_next_line.c get_next_line_utils.c
-//RUN: ./a.out test2.txt
-//B2BR https://github.com/hanshazairi/42-born2beroot
-// https://github.com/pasqualerossi/Born2BeRoot-Guide
+//RUN: ./a.out test3.txt
+// -fsanitize=address

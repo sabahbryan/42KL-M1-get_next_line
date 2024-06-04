@@ -19,7 +19,7 @@
 # include <fcntl.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 10
+#  define BUFFER_SIZE 500
 # endif
 
 //Function prototype for get_next_line
