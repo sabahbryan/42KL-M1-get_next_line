@@ -57,6 +57,46 @@ static char	*extract_line(char **remain)
 		return (NULL);
 }
 
+static char	*handle_remain(char **remain, char *line)
+{
+	if (line)
+		free(line);
+	line = ft_strdup(*remain);
+	free(*remain);
+	*remain = NULL;
+	return (line);
+}
+
+char	*get_next_line(int fd)
+{
+	char		*buffer;
+	static char	*remain = NULL;
+	char		*line;
+	int			bytes_read;
+
+	buffer = (char *)malloc(BUFFER_SIZE + 1);
+	if (!buffer)
+		return (NULL);
+	line = NULL;
+	bytes_read = 1;
+	if (!remain || !*remain)
+		bytes_read = read_and_concat(fd, &remain, buffer);
+	while (bytes_read > 0)
+	{
+		line = extract_line(&remain);
+		if (line)
+			break ;
+		bytes_read = read_and_concat(fd, &remain, buffer);
+	}
+	if (bytes_read == 0 && remain && *remain)
+		line = handle_remain(&remain, line);
+	else if (bytes_read == 0 && remain && (*remain == 0))
+		free (remain);
+	free(buffer);
+	return (line);
+}
+
+/* GNL with 29 LINES
 char	*get_next_line(int fd)
 {
 	char		*buffer;
@@ -75,7 +115,7 @@ char	*get_next_line(int fd)
 		if (line)
 			break ;
 		bytes_read = read_and_concat(fd, &remain, buffer);
-	} //don't call read_and_concat too often?
+	}
 	if (bytes_read == 0 && remain && *remain)
 	{
 		if (line)
@@ -85,40 +125,43 @@ char	*get_next_line(int fd)
 		remain = NULL;
 	}
 	else if (bytes_read == 0 && remain && (*remain == 0))
-		free (remain); //counter old system[leon WORKS!]
+		free (remain);
 	free(buffer);
 	return (line);
 }
+*/
 
-// int	main(int argc, char** argv)
-// {
-// 	int		fd;
-// 	char	*line;
-// 	int		i;
+/*
+int	main(int argc, char** argv)
+{
+ 	int		fd;
+ 	char	*line;
+ 	int		i;
 
-// 	i = 0;
-// 	if (argc != 2)
-// 	{
-// 		printf("Usage: %s <filename>\n", argv[0]);
-// 		return (1);
-// 	}
-// 	fd = open(argv[argc - 1], O_RDONLY);
-// 	if (fd < 0)
-// 	{
-// 		perror("Error opening file");
-// 		return (1);
-// 	}
-// 	line = get_next_line(fd);
-// 	while (line)
-// 	{
-// 		printf("Call number %d = %s", i++, line);
-// 		free (line);
-// 		line = get_next_line(fd);
-// 	}
-// 	close(fd);
-// 	system("leaks a.out");
-// 	return (0);
-// }
+ 	i = 0;
+ 	if (argc != 2)
+ 	{
+ 		printf("Usage: %s <filename>\n", argv[0]);
+ 		return (1);
+ 	}
+ 	fd = open(argv[argc - 1], O_RDONLY);
+ 	if (fd < 0)
+ 	{
+ 		perror("Error opening file");
+ 		return (1);
+ 	}
+ 	line = get_next_line(fd);
+ 	while (line)
+ 	{
+ 		printf("Call number %d = %s", i++, line);
+ 		free (line);
+ 		line = get_next_line(fd);
+ 	}
+ 	close(fd);
+ 	system("leaks a.out");
+ 	return (0);
+}
+*/
 
 //COMPILE: gcc get_next_line.c get_next_line_utils.c
 //RUN: ./a.out test3.txt
