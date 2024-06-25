@@ -98,3 +98,39 @@ char	*get_next_line(int fd)
 	free(buffer);
 	return (line);
 }
+/*char	*get_next_line(int fd)
+{
+	char		*buffer;
+	static char	*remain[MAX_FD];  // Array of static variables for each file descriptor
+	char		*line;
+	int			bytes_read;
+
+	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0)
+		return (NULL);
+
+	// Initialize the remain array for the first call
+	if (!remain[fd])
+		remain[fd] = NULL;
+
+	buffer = (char *)malloc(BUFFER_SIZE + 1);
+	if (!buffer)
+		return (NULL);
+	line = NULL;
+	bytes_read = 1;
+	if (!remain[fd] || !*remain[fd])
+		bytes_read = read_and_concat(fd, &remain[fd], buffer);
+	while (bytes_read > 0)
+	{
+		line = extract_line(&remain[fd]);
+		if (line)
+			break ;
+		bytes_read = read_and_concat(fd, &remain[fd], buffer);
+	}
+	if (bytes_read == 0 && remain[fd] && *remain[fd])
+		line = handle_remain(&remain[fd], line);
+	else if (bytes_read == 0 && remain[fd] && (*remain[fd] == 0))
+		free(remain[fd]);
+	free(buffer);
+	return (line);
+}
+*/
