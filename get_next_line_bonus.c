@@ -71,7 +71,7 @@ static char	*handle_remain(char **remain, char *line)
 char	*get_next_line(int fd)
 {
 	char		*buffer;
-	static char	*remain[MAX_FD] = NULL;
+	static char	*remain[MAX_FD];
 	char		*line;
 	int			bytes_read;
 
@@ -98,22 +98,26 @@ char	*get_next_line(int fd)
 	free(buffer);
 	return (line);
 }
-/*char	*get_next_line(int fd)
+
+/*
+static int	initialise_buffer(char **buffer)
 {
+	*buffer = (char *)malloc(BUFFER_SIZE + 1);
+	if (!(*buffer))
+		return (0);
+	return (1);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*remain[MAX_FD];
 	char		*buffer;
-	static char	*remain[MAX_FD];  // Array of static variables for each file descriptor
 	char		*line;
 	int			bytes_read;
 
 	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0)
 		return (NULL);
-
-	// Initialize the remain array for the first call
-	if (!remain[fd])
-		remain[fd] = NULL;
-
-	buffer = (char *)malloc(BUFFER_SIZE + 1);
-	if (!buffer)
+	if (!initialise_buffer(&buffer))
 		return (NULL);
 	line = NULL;
 	bytes_read = 1;
@@ -128,7 +132,7 @@ char	*get_next_line(int fd)
 	}
 	if (bytes_read == 0 && remain[fd] && *remain[fd])
 		line = handle_remain(&remain[fd], line);
-	else if (bytes_read == 0 && remain[fd] && (*remain[fd] == 0))
+	else if (bytes_read == 0 && remain[fd] && !*remain[fd])
 		free(remain[fd]);
 	free(buffer);
 	return (line);
