@@ -58,28 +58,11 @@ static char	*extract_line(char **remain)
 		return (NULL);
 }
 
-static char	*handle_remain(char **remain, char *line)
+static char	*read_line(int fd, char **remain, char *buffer)
 {
-	if (line)
-		free(line);
-	line = ft_strdup(*remain);
-	free(*remain);
-	*remain = NULL;
-	return (line);
-}
+	char	*line;
+	int		bytes_read;
 
-char	*get_next_line(int fd)
-{
-	char		*buffer;
-	static char	*remain[MAX_FD];
-	char		*line;
-	int			bytes_read;
-
-	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0)
-		return (NULL);
-	buffer = (char *)malloc(BUFFER_SIZE + 1);
-	if (!buffer)
-		return (NULL);
 	line = NULL;
 	bytes_read = 1;
 	if (!remain[fd] || !*remain[fd])
@@ -92,9 +75,30 @@ char	*get_next_line(int fd)
 		bytes_read = read_and_concat(fd, &remain[fd], buffer);
 	}
 	if (bytes_read == 0 && remain[fd] && *remain[fd])
-		line = handle_remain(&remain[fd], line);
-	else if (bytes_read == 0 && remain[fd] && (*remain[fd] == 0))
+	{
+		if (line)
+			free(line);
+		line = ft_strdup(remain[fd]);
 		free(remain[fd]);
+		remain[fd] = NULL;
+	}
+	else if (bytes_read == 0 && remain[fd] && !*remain[fd])
+		free(remain[fd]);
+	return (line);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*remain[MAX_FD];
+	char		*buffer;
+	char		*line;
+
+	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0)
+		return (NULL);
+	buffer = (char *)malloc(BUFFER_SIZE + 1);
+	if (!buffer)
+		return (NULL);
+	line = read_line(fd, remain, buffer);
 	free(buffer);
 	return (line);
 }
