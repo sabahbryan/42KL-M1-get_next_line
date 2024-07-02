@@ -91,6 +91,22 @@ static char	*read_line(int fd, char **remain, char *buffer)
 	return (line);
 }
 
+char	*get_next_line(int fd)
+{
+	static char	*remain[MAX_FD];
+	char		*buffer;
+	char		*line;
+
+	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0)
+		return (NULL);
+	buffer = (char *)malloc(BUFFER_SIZE + 1);
+	if (!buffer)
+		return (NULL);
+	line = read_line(fd, remain, buffer);
+	free(buffer);
+	return (line);
+}
+
 /* WITHOUT handle_remain
 static char	*read_line(int fd, char **remain, char *buffer)
 {
