@@ -58,6 +58,40 @@ static char	*extract_line(char **remain)
 		return (NULL);
 }
 
+static char	*handle_remain(char **remain, char *line)
+{
+	if (line)
+		free(line);
+	line = ft_strdup(*remain);
+	free(*remain);
+	*remain = NULL;
+	return (line);
+}
+
+static char	*read_line(int fd, char **remain, char *buffer)
+{
+	char	*line;
+	int		bytes_read;
+
+	line = NULL;
+	bytes_read = 1;
+	if (!remain[fd] || !*remain[fd])
+		bytes_read = read_and_concat(fd, &remain[fd], buffer);
+	while (bytes_read > 0)
+	{
+		line = extract_line(&remain[fd]);
+		if (line)
+			break ;
+		bytes_read = read_and_concat(fd, &remain[fd], buffer);
+	}
+	if (bytes_read == 0 && remain[fd] && *remain[fd])
+		line = handle_remain(&remain[fd], line);
+	else if (bytes_read == 0 && remain[fd] && !*remain[fd])
+		free(remain[fd]);
+	return (line);
+}
+
+/* WITHOUT handle_remain
 static char	*read_line(int fd, char **remain, char *buffer)
 {
 	char	*line;
@@ -102,8 +136,9 @@ char	*get_next_line(int fd)
 	free(buffer);
 	return (line);
 }
+*/
 
-/*
+/* OLD
 static int	initialise_buffer(char **buffer)
 {
 	*buffer = (char *)malloc(BUFFER_SIZE + 1);
