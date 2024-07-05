@@ -13,6 +13,15 @@
 #include "get_next_line_bonus.h"
 #define MAX_FD 512
 
+/**
+ * @brief reads data from FD and concats with remainder data
+ * @param fd file descriptor, read (O_RDONLY)
+ * @param remain holds remainder not returned as completed line 
+ * @param buffer temporarily store data read from FD
+ * @var bytes_read stores read results
+ * @var temp holds combined remain and buffer before remain is updated
+ * @return number of bytes read
+ */
 static int	read_and_concat(int fd, char **remain, char *buffer)
 {
 	int		bytes_read;
@@ -32,6 +41,14 @@ static int	read_and_concat(int fd, char **remain, char *buffer)
 	return (bytes_read);
 }
 
+/**
+ * @brief extracts line from data in remainder
+ * @param remain holds remainder not returned as completed line
+ * @var line holds completed line to return
+ * @var newline_pos position to find newline and split remainder
+ * @var temp stores new value of remainder after extraction
+ * @return next line as new string or NULL if no newline is found
+ */
 static char	*extract_line(char **remain)
 {
 	char	*line;
@@ -58,6 +75,12 @@ static char	*extract_line(char **remain)
 		return (NULL);
 }
 
+/**
+ * @brief handles remaining data after EOF
+ * @param remain holds remainder not returned as completed line
+ * @param line holds read data 
+ * @return remainder as new string
+ */
 static char	*handle_remain(char **remain, char *line)
 {
 	if (line)
@@ -68,6 +91,11 @@ static char	*handle_remain(char **remain, char *line)
 	return (line);
 }
 
+/**
+ * @brief reads from a file and return up to the newline char
+ * @param fd file descriptor, read (O_RDONLY)
+ * @return the string or NULL when failed
+ */
 static char	*read_line(int fd, char **remain, char *buffer)
 {
 	char	*line;
@@ -91,6 +119,15 @@ static char	*read_line(int fd, char **remain, char *buffer)
 	return (line);
 }
 
+/**
+ * @brief reads from a file and return upto the newline char
+ * @param fd file descriptor, read (O_RDONLY)
+ * @var buffer temporary storage to read from file
+ * @var remain stores remainder from previous call
+ * @var line stores extracted line to be returned to caller
+ * @var bytes_read determines if more data to be read or EOF reached
+ * @return the string or NULL when failed
+ */
 char	*get_next_line(int fd)
 {
 	static char	*remain[MAX_FD];
@@ -106,6 +143,15 @@ char	*get_next_line(int fd)
 	free(buffer);
 	return (line);
 }
+
+// #include <fcntl.h>
+// int	main(void)
+// {
+// 	int fd = open("test", O_RDONLY);
+// 	char *ptr = get_next_line(fd);
+// 	free(ptr);
+// 	return (0);
+// }
 
 /* WITHOUT handle_remain
 static char	*read_line(int fd, char **remain, char *buffer)
