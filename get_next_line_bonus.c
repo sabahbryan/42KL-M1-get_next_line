@@ -94,6 +94,10 @@ static char	*handle_remain(char **remain, char *line)
 /**
  * @brief reads from a file and return up to the newline char
  * @param fd file descriptor, read (O_RDONLY)
+ * @param remain stores remaining read buffer
+ * @param buffer to read data from FD
+ * @var line initialise NULL, stores line to be extracted and returned
+ * @var bytes_read tracks number of bytes to be read from FD
  * @return the string or NULL when failed
  */
 static char	*read_line(int fd, char **remain, char *buffer)
@@ -122,10 +126,9 @@ static char	*read_line(int fd, char **remain, char *buffer)
 /**
  * @brief reads from a file and return upto the newline char
  * @param fd file descriptor, read (O_RDONLY)
+ * @var remain array of char pointers, each index represents a FD
  * @var buffer temporary storage to read from file
- * @var remain stores remainder from previous call
  * @var line stores extracted line to be returned to caller
- * @var bytes_read determines if more data to be read or EOF reached
  * @return the string or NULL when failed
  */
 char	*get_next_line(int fd)
@@ -144,63 +147,69 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
-// #include <fcntl.h>
-// int	main(void)
-// {
-// 	int fd = open("test", O_RDONLY);
-// 	char *ptr = get_next_line(fd);
-// 	free(ptr);
-// 	return (0);
-// }
-
-/* WITHOUT handle_remain
-static char	*read_line(int fd, char **remain, char *buffer)
+/*
+//MAIN FUNCTION\\
+#include <fcntl.h>
+int	main(int argc, char **argv)
 {
+	int		fds[argc - 1];
 	char	*line;
-	int		bytes_read;
+	int		i;
+	int		active_fds;
 
-	line = NULL;
-	bytes_read = 1;
-	if (!remain[fd] || !*remain[fd])
-		bytes_read = read_and_concat(fd, &remain[fd], buffer);
-	while (bytes_read > 0)
+	if (argc < 2)
 	{
-		line = extract_line(&remain[fd]);
-		if (line)
-			break ;
-		bytes_read = read_and_concat(fd, &remain[fd], buffer);
+		printf("Usage: %s <filename1> <filename2> ... <filenameN>\n", argv[0]);
+		return (1);
 	}
-	if (bytes_read == 0 && remain[fd] && *remain[fd])
+	// Open all files and store their file descriptors
+	for (i = 1; i < argc; i++)
 	{
-		if (line)
-			free(line);
-		line = ft_strdup(remain[fd]);
-		free(remain[fd]);
-		remain[fd] = NULL;
+		fds[i - 1] = open(argv[i], O_RDONLY);
+		if (fds[i - 1] < 0)
+		{
+			perror("Error opening file");
+			while (--i > 0)
+				close(fds[i - 1]);
+			return (1);
+		}
 	}
-	else if (bytes_read == 0 && remain[fd] && !*remain[fd])
-		free(remain[fd]);
-	return (line);
+	active_fds = argc - 1;
+	// Read lines from all files until all are exhausted
+	while (active_fds > 0)
+	{
+		for (i = 0; i < argc - 1; i++)
+		{
+			if (fds[i] >= 0)
+			{
+				line = get_next_line(fds[i]);
+				if (line)
+				{
+					printf("File %d: %s", i + 1, line);
+					free(line);
+				}
+				else
+				{
+					close(fds[i]);
+					fds[i] = -1;
+					active_fds--;
+				}
+			}
+		}
+	}
+	return (0);
 }
 
-char	*get_next_line(int fd)
+#include <fcntl.h>
+int	main(void)
 {
-	static char	*remain[MAX_FD];
-	char		*buffer;
-	char		*line;
-
-	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0)
-		return (NULL);
-	buffer = (char *)malloc(BUFFER_SIZE + 1);
-	if (!buffer)
-		return (NULL);
-	line = read_line(fd, remain, buffer);
-	free(buffer);
-	return (line);
+	int fd = open("test", O_RDONLY);
+	char *ptr = get_next_line(fd);
+	free(ptr);
+	return (0);
 }
-*/
 
-/* OLD
+//OLD\\
 static int	initialise_buffer(char **buffer)
 {
 	*buffer = (char *)malloc(BUFFER_SIZE + 1);
@@ -237,5 +246,4 @@ char	*get_next_line(int fd)
 		free(remain[fd]);
 	free(buffer);
 	return (line);
-}
-*/
+}*/

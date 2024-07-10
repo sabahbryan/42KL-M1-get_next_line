@@ -131,13 +131,14 @@ char	*get_next_line(int fd)
 // #include <fcntl.h>
 // int	main(void)
 // {
-// 	int fd = open("test", O_RDONLY);
+// 	int fd = open("test.txt", O_RDONLY);
 // 	char *ptr = get_next_line(fd);
 // 	free(ptr);
 // 	return (0);
 // }
 
-/* GNL with 29 LINES
+/*
+//GNL with 29 LINES\\
 char	*get_next_line(int fd)
 {
 	char		*buffer;
@@ -170,9 +171,8 @@ char	*get_next_line(int fd)
 	free(buffer);
 	return (line);
 }
-*/
 
-/*
+//MAIN FUNCTION\\
 int	main(int argc, char** argv)
 {
  	int		fd;
@@ -199,7 +199,7 @@ int	main(int argc, char** argv)
  		line = get_next_line(fd);
  	}
  	close(fd);
- 	system("leaks a.out");
+// 	system("leaks a.out");
  	return (0);
 }
 */
